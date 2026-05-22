@@ -42,7 +42,7 @@
         </select>
       </div>
 
-      {# NAYA: Time / Timeslot Filter #}
+      {# Time / Timeslot Filter #}
       <div class='col-lg-2 col-md-4 col-sm-6'>
         <label class="form-label small text-muted mb-1 fw-bold">Time</label>
         <select name='time_filter' class='form-select border-secondary-subtle' onchange='this.form.submit()'>
@@ -89,7 +89,6 @@
       </thead>
       
       <tbody class="bg-white">
-        {# YAHAN TABDEELI KI GAYI HAI: slots ki jagah unique_time_periods #}
         {% for tp in unique_time_periods %}
         <tr>
           <td class='bg-light fw-bold text-nowrap align-middle border-end'>
