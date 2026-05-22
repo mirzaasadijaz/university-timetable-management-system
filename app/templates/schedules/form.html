@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import render_field %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class='row justify-content-center'>
+  <div class='col-lg-10 col-xl-8'>
+    
+    {# Clashes Alert (Agar koi clash ho) #}
+    {% if clashes %}
+    <div class='alert alert-danger shadow-sm alert-dismissible fade show' role='alert'>
+      <strong><i class='bi bi-exclamation-triangle-fill me-2'></i> Clashes detected:</strong>
+      <ul class='mb-0 mt-2'>
+        {% for k,msg in clashes.items() %}
+          <li><strong>{{ k|upper }}:</strong> {{ msg }}</li>
+        {% endfor %}
+      </ul>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    <div class='card shadow border-0'>
+      <div class='card-header bg-dark text-white py-3'>
+        <h5 class='mb-0 fw-semibold'><i class="bi bi-calendar-plus me-2"></i>{{ title }}</h5>
+      </div>
+      
+      <div class='card-body p-4'>
+        <form method='POST'>
+          {{ form.hidden_tag() }}
+          
+          {# SECTION 1: Academic Details (Teacher & Course) #}
+          <h6 class="text-muted border-bottom pb-2 mb-3">Academic Details</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              {{ render_field(form.teacher_id) }}
+            </div>
+            <div class="col-md-6">
+              {{ render_field(form.course_id) }}
+            </div>
+          </div>
+
+          {# SECTION 2: Class Information (Semester & Section) #}
+          <h6 class="text-muted border-bottom pb-2 mb-3">Class Information</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              {{ render_field(form.semester_filter) }}
+            </div>
+            <div class="col-md-6">
+              {{ render_field(form.section_id) }}
+            </div>
+          </div>
+
+          {# SECTION 3: Location Details (Building & Room) #}
+          <h6 class="text-muted border-bottom pb-2 mb-3">Location Details</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              {{ render_field(form.building) }}
+            </div>
+            <div class="col-md-6">
+              {{ render_field(form.room_id) }}
+            </div>
+          </div>
+
+          {# SECTION 4: Time Details (Day & Time Slot) #}
+          <h6 class="text-muted border-bottom pb-2 mb-3">Schedule Time</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              {{ render_field(form.day) }}
+            </div>
+            <div class="col-md-6">
+              {{ render_field(form.time_slot_id) }}
+            </div>
+          </div>
+
+          {# FORM ACTIONS #}
+          <div class='d-flex justify-content-end gap-2 mt-4 pt-3 border-top'>
+            <a href='{{ url_for("schedules.list_schedules") }}' class='btn btn-light border px-4'>Cancel</a>
+            <button type="submit" class='btn btn-success px-4'>
+              <i class="bi bi-check2-circle me-1"></i> {{ form.submit.label.text }}
+            </button>
+          </div>
+          
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function setupDependentDropdown(parentID, childID) {
+        const parent = document.getElementById(parentID);
+        const child = document.getElementById(childID);
+        
+        if(!parent || !child) return; 
+
+        const allOptions = Array.from(child.options);
+
+        allOptions.forEach(opt => {
+            if (opt.text.includes('|')) {
+                const parts = opt.text.split('|');
+                opt.setAttribute('data-parent', parts[0]);
+                opt.text = parts[1];
+            }
+        });
+
+        function filter() {
+            const selectedVal = parent.value;
+            child.innerHTML = ''; 
+            let matchFound = false;
+
+            allOptions.forEach(opt => {
+                if (opt.getAttribute('data-parent') === selectedVal || !opt.value) {
+                    child.appendChild(opt);
+                    matchFound = true;
+                }
+            });
+
+            if (!matchFound) {
+                const noOption = document.createElement('option');
+                noOption.text = "-- No options available --";
+                noOption.value = "";
+                child.appendChild(noOption);
+            }
+        }
+
+        parent.addEventListener('change', filter);
+        filter();
+    }
+
+    setupDependentDropdown('day', 'time_slot_id');
+    setupDependentDropdown('semester_filter', 'section_id');
+    setupDependentDropdown('building', 'room_id');
+});
+</script>
+{% endblock %}

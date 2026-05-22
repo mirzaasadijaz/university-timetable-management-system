@@ -1,0 +1,41 @@
+/* CTMS — Custom Styles */
+
+/* ── Layout ── */
+body { min-height: 100vh; }
+.container-fluid { max-width: 1400px; }
+
+/* ── Navbar ── */
+.navbar-brand { letter-spacing: 1px; font-size: 1.3rem; }
+
+/* ── Cards ── */
+.card { border-radius: 0.5rem; }
+.card-header { font-weight: 600; }
+
+/* ── Tables ── */
+.table thead th { white-space: nowrap; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.table td { vertical-align: middle; }
+
+/* ── Timetable Grid ── */
+.timetable-cell { min-width: 120px; font-size: 0.78rem; line-height: 1.3; }
+.timetable-cell .course-code { font-weight: 700; color: #1F3864; }
+
+/* ── Clash badge ── */
+.clash-row td { background-color: #FCE4D6 !important; }
+
+/* ── Status badges ── */
+.status-draft     { background-color: #FFF3CD; color: #856404; }
+.status-published { background-color: #D1E7DD; color: #0f5132; }
+.status-archived  { background-color: #E2E3E5; color: #41464b; }
+
+/* ── Form cards ── */
+.form-card { max-width: 600px; margin: 0 auto; }
+
+/* ── Dashboard stat cards ── */
+.stat-card { transition: transform 0.15s; }
+.stat-card:hover { transform: translateY(-3px); }
+
+/* ── Code tags ── */
+code { background: #EDF3FC; padding: 0 4px; border-radius: 3px; font-size: 0.85em; }
+
+/* ── Pagination ── */
+.pagination { flex-wrap: wrap; }

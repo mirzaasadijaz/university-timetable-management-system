@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import confirm_delete_btn, pagination %}
+{% block title %}Teachers{% endblock %}
+{% block content %}
+<div class='d-flex justify-content-between align-items-center mb-3'>
+  <h3><i class='bi bi-person-badge'></i> Teachers</h3>
+  {% if current_user.is_admin_or_above %}
+  <a href='{{ url_for("teachers.add_teacher") }}' class='btn btn-primary'><i class='bi bi-plus-lg'></i> Add Teacher</a>
+  {% endif %}
+</div>
+<form class='row g-2 mb-3' method='GET'>
+  <div class='col-auto'><input name='search' class='form-control' placeholder='Search name...' value='{{ search }}'></div>
+  <div class='col-auto'><button class='btn btn-outline-secondary'>Search</button></div>
+</form>
+<div class='table-responsive'>
+<table class='table table-striped table-hover align-middle'>
+  <thead class='table-dark'><tr>
+    <th>#</th><th>Name</th><th>Code</th><th>Designation</th><th>Department</th><th>Hrs/wk</th>
+    {% if current_user.is_admin_or_above %}
+    <th>Actions</th>
+    {% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in teachers.items %}
+    <tr>
+      <td>{{ loop.index + (teachers.page-1)*20 }}</td>
+      <td>{{ t.full_name }}</td>
+      <td><code>{{ t.employee_code }}</code></td>
+      <td>{{ t.designation }}</td>
+      <td>{{ t.department.name if t.department else '—' }}</td>
+      <td>{{ t.get_weekly_hours() }}</td>
+      {% if current_user.is_admin_or_above %}
+      <td class='d-flex gap-1'>
+        <a href='{{ url_for("teachers.edit_teacher", id=t.id) }}' class='btn btn-sm btn-warning'><i class='bi bi-pencil'></i></a>
+        {% if current_user.is_super_admin %}
+        {{ confirm_delete_btn(url_for('teachers.delete_teacher', id=t.id)) }}
+        {% endif %}
+      </td>
+      {% endif %}
+    </tr>
+    {% else %}<tr><td colspan='7' class='text-center text-muted'>No teachers found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{{ pagination(teachers, 'teachers.list_teachers', search=search) }}
+{% endblock %}

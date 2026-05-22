@@ -1,0 +1,103 @@
+{% extends 'base.html' %} {% from '_macros.html' import confirm_delete_btn,
+pagination %} {% block title %}User Management{% endblock %} {% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3><i class="bi bi-people-fill"></i> User Management</h3>
+  <a href='{{ url_for("users.add_user") }}' class="btn btn-primary">
+    <i class="bi bi-plus-lg"></i> Add User
+  </a>
+</div>
+
+<form class="row g-2 mb-3" method="GET">
+  <div class="col-auto">
+    <input
+      name="search"
+      class="form-control"
+      placeholder="Search username..."
+      value="{{ search }}"
+    />
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-outline-secondary">Search</button>
+  </div>
+</form>
+<div class="table-responsive">
+  <table class="table table-striped table-hover align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>#</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users.items %} {% if current_user.is_super_admin or u.role !=
+      'super_admin' %}
+      <tr>
+        <td>{{ loop.index + (users.page-1)*20 }}</td>
+        <td><strong>{{ u.username }}</strong></td>
+        <td>{{ u.email }}</td>
+        <td>
+          {% set role_colors = { 'super_admin': 'bg-dark', 'admin':
+          'bg-primary', 'manager': 'bg-info text-dark', 'teacher':
+          'bg-secondary' } %}
+          <span class='badge {{ role_colors.get(u.role, "bg-secondary") }}'>
+            {{ u.role.replace('_',' ').title() }}
+          </span>
+        </td>
+        <td>
+          <span
+            class='badge {{ "bg-success" if u.is_active else "bg-danger" }}'
+          >
+            {{ 'Active' if u.is_active else 'Inactive' }}
+          </span>
+        </td>
+        <td class="text-muted small">
+          {{ u.created_at.strftime('%d %b %Y') if u.created_at else '—' }}
+        </td>
+        <td>
+          <div class="d-flex gap-1 flex-wrap">
+            <a
+              href='{{ url_for("users.edit_user", id=u.id) }}'
+              class="btn btn-sm btn-warning"
+            >
+              <i class="bi bi-pencil"></i>
+            </a>
+            <form
+              method="POST"
+              action='{{ url_for("users.toggle_user", id=u.id) }}'
+              style="display: inline"
+            >
+              <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+              />
+              <button
+                type="submit"
+                class='btn btn-sm {{ "btn-outline-danger" if u.is_active else "btn-outline-success" }}'
+                title='{{ "Deactivate" if u.is_active else "Activate" }}'
+              >
+                <i
+                  class='bi {{ "bi-person-x" if u.is_active else "bi-person-check" }}'
+                ></i>
+              </button>
+            </form>
+            {% if current_user.is_super_admin and u.id != current_user.id %} {{
+            confirm_delete_btn(url_for('users.delete_user', id=u.id)) }} {%
+            endif %}
+          </div>
+        </td>
+      </tr>
+      {% endif %} {% else %}
+      <tr>
+        <td colspan="7" class="text-center text-muted py-4">No users found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{{ pagination(users, 'users.list_users', search=search) }} {% endblock %}

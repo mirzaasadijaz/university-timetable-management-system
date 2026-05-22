@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import render_field %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class='row justify-content-center'>
+  <div class='col-md-5'>
+    <div class='card shadow-sm'>
+      <div class='card-header bg-dark text-white'><h5 class='mb-0'>{{ title }}</h5></div>
+      <div class='card-body'>
+        <form method='POST'>
+          {{ form.hidden_tag() }}
+          {{ render_field(form.day) }}
+          <div class='row'>
+            <div class='col-md-6'>{{ render_field(form.start_time) }}</div>
+            <div class='col-md-6'>{{ render_field(form.end_time) }}</div>
+          </div>
+          {{ render_field(form.label) }}
+          <p class='text-muted small'>Time format: HH:MM  e.g. 08:00  or  13:30</p>
+          <div class='d-flex gap-2 mt-2'>
+            {{ form.submit(class='btn btn-primary') }}
+            <a href='{{ url_for("timeslots.list_slots") }}' class='btn btn-secondary'>Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

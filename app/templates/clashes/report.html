@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Clash Report{% endblock %}
+{% block content %}
+<div class='d-flex justify-content-between align-items-center mb-3'>
+  <h3><i class='bi bi-exclamation-triangle'></i> Clash Detection Report</h3>
+  <span class='badge fs-6 {{ "bg-danger" if total > 0 else "bg-success" }}'>
+    {{ total }} total clash(es)
+  </span>
+</div>
+
+{% if total == 0 %}
+<div class='alert alert-success'><i class='bi bi-check-circle-fill'></i> No clashes detected. Schedule is clean!</div>
+{% else %}
+
+{% for clash_type, pairs in clashes.items() %}
+{% if pairs %}
+<div class='card mb-4 border-danger'>
+  <div class='card-header bg-danger text-white'>
+    <i class='bi bi-x-circle'></i> {{ clash_type|capitalize }} Clashes ({{ pairs|length }})
+  </div>
+  <div class='table-responsive'>
+    <table class='table table-sm mb-0'>
+      <thead class='table-light'>
+        <tr><th>Entry 1</th><th>Entry 2</th><th>Conflict</th></tr>
+      </thead>
+      <tbody>
+        {% for a, b in pairs %}
+        <tr class='table-danger'>
+          <td>
+            {{ a.teacher.full_name }}<br>
+            <small>{{ a.course.code }} | {{ a.room.room_number }} | {{ a.section.name }}</small>
+          </td>
+          <td>
+            {{ b.teacher.full_name }}<br>
+            <small>{{ b.course.code }} | {{ b.room.room_number }} | {{ b.section.name }}</small>
+          </td>
+          <td class='fw-semibold text-danger'>
+            {{ a.time_slot.display }}<br>
+            <small>Same {{ clash_type }}</small>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endblock %}

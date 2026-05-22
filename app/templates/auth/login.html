@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class='row justify-content-center mt-5'>
+  <div class='col-md-4 col-sm-10'>
+    <div class='card shadow'>
+      <div class='card-header bg-dark text-white text-center py-4'>
+        <h3 class='mb-0'><i class='bi bi-calendar3'></i> CTMS</h3>
+        <small class='text-secondary'>Class Timetable Management System</small>
+      </div>
+      <div class='card-body p-4'>
+        <form method='POST'>
+          {{ form.hidden_tag() }}
+          <div class='mb-3'>
+            {{ form.username.label(class='form-label fw-semibold') }}
+            {{ form.username(class='form-control', placeholder='Enter username') }}
+            {% for e in form.username.errors %}<div class='text-danger small'>{{ e }}</div>{% endfor %}
+          </div>
+          <div class='mb-3'>
+            {{ form.password.label(class='form-label fw-semibold') }}
+            {{ form.password(class='form-control', placeholder='Enter password') }}
+          </div>
+          <div class='mb-4 form-check'>
+            {{ form.remember(class='form-check-input') }}
+            {{ form.remember.label(class='form-check-label') }}
+          </div>
+          {{ form.submit(class='btn btn-primary w-100 py-2') }}
+        </form>
+      </div>
+      <div class='card-footer text-center text-muted small py-2'>
+        No self-registration &mdash; contact your administrator for access.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

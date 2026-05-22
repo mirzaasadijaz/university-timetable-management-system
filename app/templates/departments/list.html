@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import confirm_delete_btn %}
+{% block title %}Departments{% endblock %}
+{% block content %}
+<div class='d-flex justify-content-between align-items-center mb-3'>
+  <h3><i class='bi bi-diagram-3'></i> Departments</h3>
+  {% if current_user.is_admin_or_above %}
+  <a href='{{ url_for("departments.add_department") }}' class='btn btn-primary'>
+    <i class='bi bi-plus-lg'></i> Add Department
+  </a>
+  {% endif %}
+</div>
+<table class='table table-striped table-hover align-middle'>
+  <thead class='table-dark'>
+    <tr><th>#</th><th>Name</th><th>Code</th><th>Teachers</th><th>Courses</th>
+      {% if current_user.is_admin_or_above %}
+      <th>Actions</th>
+      {% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for d in depts %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ d.name }}</td>
+      <td><code>{{ d.code }}</code></td>
+      <td>{{ d.teachers.count() }}</td>
+      <td>{{ d.courses.count() }}</td>
+      {% if current_user.is_admin_or_above %}
+      <td class='d-flex gap-1'>
+        <a href='{{ url_for("departments.edit_department", id=d.id) }}' class='btn btn-sm btn-warning'>
+          <i class='bi bi-pencil'></i>
+        </a>
+        {% if current_user.is_super_admin %}
+        {{ confirm_delete_btn(url_for('departments.delete_department', id=d.id)) }}
+        {% endif %}
+      </td>
+      {% endif %}
+    </tr>
+    {% else %}
+    <tr><td colspan='6' class='text-center text-muted py-4'>No departments yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

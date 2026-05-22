@@ -1,0 +1,140 @@
+{% extends 'base.html' %} {% block title %}Dashboard{% endblock %} {% block
+content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-4">
+    <i class="bi bi-speedometer2"></i>
+    Dashboard
+    <span class="badge bg-secondary fs-6"
+      >{{ current_user.role.replace('_',' ').title() }}</span
+    >
+  </h2>
+  {% if current_user.role == 'teacher' %}
+  <div class="d-flex gap-2">
+    <a
+      href='{{ url_for("schedules.timetable_grid") }}'
+      class="btn btn-outline-primary"
+    >
+      <i class="bi bi-grid-3x3"></i> Grid View
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+{# ── STATS ROW (admin / manager) ── #} {% if current_user.is_manager_or_above
+%}
+<div class="row g-3 mb-4">
+  {% set cards = [ ('bi-person-badge','primary','Teachers', stats.teachers,
+  'teachers.list_teachers'), ('bi-book','success','Courses', stats.courses,
+  'courses.list_courses'), ('bi-building','info','Rooms', stats.rooms,
+  'rooms.list_rooms'), ('bi-people','warning','Sections', stats.sections,
+  'sections.list_sections'), ('bi-table','dark','Schedules',
+  stats.schedules,'schedules.list_schedules'), ] %} {% for
+  icon,color,label,count,route in cards %}
+  <div class="col-6 col-md-2">
+    <a href="{{ url_for(route) }}" class="text-decoration-none">
+      <div class="card text-white bg-{{ color }} h-100">
+        <div class="card-body text-center py-3">
+          <i class="bi {{ icon }} fs-3"></i>
+          <h3 class="mb-0 mt-1">{{ count }}</h3>
+          <div class="small">{{ label }}</div>
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+  <div class="col-6 col-md-2">
+    <a href='{{ url_for("clashes.report") }}' class="text-decoration-none">
+      <div
+        class='card text-white h-100 {{ "bg-danger" if stats.clashes > 0 else "bg-success" }}'
+      >
+        <div class="card-body text-center py-3">
+          <i class="bi bi-exclamation-triangle fs-3"></i>
+          <h3 class="mb-0 mt-1">{{ stats.clashes }}</h3>
+          <div class="small">Clashes</div>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+
+{# Recent entries #} {% if recent %}
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-dark text-white">Recent Schedule Entries</div>
+  <div class="table-responsive">
+    <table class="table table-sm table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Teacher</th>
+          <th>Course</th>
+          <th>Room</th>
+          <th>Building</th>
+          <th>Time</th>
+          <th>Section</th>
+          <th>Semester</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in recent %}
+        <tr>
+          <td>{{ s.teacher.full_name }}</td>
+          <td>{{ s.course.code }}</td>
+          <td>
+            {{ s.room.room_type|title }} {{ s.room.room_number }} {% if
+            s.room.floor %} - {{ s.room.floor|title }} Floor {% endif %}
+          </td>
+          <td>{{ s.room.building }}</td>
+          <td>{{ s.time_slot.display }}</td>
+          <td>{{ s.section.program }} - {{ s.section.name }}</td>
+          <td>{{ s.section.semester }} Sem</td>
+          <td>
+            <span
+              class='badge bg-{{ "success" if s.status=="published" else "warning" }}'
+              >{{ s.status }}</span
+            >
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %} {% endif %} {# ── TEACHER VIEW ── #} {% if current_user.role ==
+'teacher' %}
+<h4>My Schedule</h4>
+{% if my_schedule %}
+<div class="table-responsive">
+  <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Day</th>
+        <th>Time</th>
+        <th>Course</th>
+        <th>Room</th>
+        <th>Building</th>
+        <th>Section</th>
+        <th>Semester</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in my_schedule %}
+      <tr>
+        <td>{{ s.time_slot.day }}</td>
+        <td>{{ s.time_slot.start_time }}–{{ s.time_slot.end_time }}</td>
+        <td>{{ s.course.code }}</td>
+        <td>
+          {{ s.room.room_type|title }} {{ s.room.room_number }} {% if
+          s.room.floor %} - {{ s.room.floor|title }} Floor {% endif %}
+        </td>
+        <td>{{ s.room.building }}</td>
+        <td>{{ s.section.program }} - {{ s.section.name }}</td>
+        <td>{{ s.section.semester }} Semester</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-info">No schedule assigned yet.</div>
+{% endif %} {% endif %} {% endblock %}

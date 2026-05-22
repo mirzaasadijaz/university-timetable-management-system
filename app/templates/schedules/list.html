@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import confirm_delete_btn, pagination %}
+{% block title %}Schedule{% endblock %}
+{% block content %}
+<div class='d-flex justify-content-between align-items-center mb-3'>
+  <h3><i class='bi bi-table'></i> Schedule Entries</h3>
+  <div class='d-flex gap-2'>
+    <a href='{{ url_for("schedules.timetable_grid") }}' class='btn btn-outline-primary'>
+      <i class='bi bi-grid-3x3'></i> Grid View
+    </a>
+    {% if current_user.is_admin_or_above %}
+    <a href='{{ url_for("schedules.add_schedule") }}' class='btn btn-success'>
+      <i class='bi bi-plus-lg'></i> Add Entry
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<form class='row g-2 mb-3' method='GET'>
+  
+  <div class='col-auto'>
+    <select name='semester' class='form-select form-select-sm' onchange='this.form.submit()'>
+      <option value=''>All Semesters</option>
+      {% for sem in semesters %}
+        <option value='{{ sem }}' {{ 'selected' if semester_val==sem }}>Semester {{ sem }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class='col-auto'>
+    <select name='section_id' class='form-select form-select-sm' onchange='this.form.submit()'>
+      <option value=''>All Sections</option>
+      {% for s in sections %}
+        <option value='{{ s.id }}' {{ 'selected' if sf==s.id }}>{{ s.program }} - {{ s.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  
+  <div class='col-auto'>
+    <select name='teacher_id' class='form-select form-select-sm' onchange='this.form.submit()'>
+      <option value=''>All Teachers</option>
+      {% for t in teachers %}
+        <option value='{{ t.id }}' {{ 'selected' if tf==t.id }}>{{ t.full_name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class='col-auto'>
+    <select name='day' class='form-select form-select-sm' onchange='this.form.submit()'>
+      <option value=''>All Days</option>
+      {% for d in days_list %}
+        <option value='{{ d }}' {{ 'selected' if day_val==d }}>{{ d }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class='col-auto'>
+    <select name='time' class='form-select form-select-sm' onchange='this.form.submit()'>
+      <option value=''>All Times</option>
+      {% for t in unique_times %}
+        <option value='{{ t.key }}' {{ 'selected' if time_val==t.key }}>{{ t.start_time }} - {{ t.end_time }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  
+  <div class='col-auto'>
+    <a href='{{ url_for("schedules.list_schedules") }}' class='btn btn-sm btn-secondary'>Reset</a>
+  </div>
+</form>
+
+<div class='table-responsive'>
+<table class='table table-bordered table-hover align-middle table-sm'>
+  <thead class='table-dark'>
+    <tr>
+      <th>#</th><th>Teacher</th><th>Course</th><th>Building</th><th>Room</th>
+      <th>Day</th><th>Time</th><th>Section</th><th>Semester</th>
+      <th>Status</th>
+      {% if current_user.is_admin_or_above %}
+      <th>Actions</th>
+      {% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in schedules.items %}x
+    <tr>
+      <td>{{ loop.index + (schedules.page-1)*30 }}</td>
+      <td>{{ s.teacher.full_name }}</td>
+      <td><code>{{ s.course.code }}</code></td>
+      <td>{{ s.room.building }}</td>
+      <td>
+        {{ s.room.room_type|title }} {{ s.room.room_number }}
+        {% if s.room.floor %}
+          - {{ s.room.floor|title }} Floor
+        {% endif %}
+      </td>
+      <td>{{ s.time_slot.day[:3] }}</td>
+      <td class='text-nowrap'>{{ s.time_slot.start_time }}–{{ s.time_slot.end_time }}</td>
+      <td>{{ s.section.program }} - {{ s.section.name }}</td>
+      <td>{{ s.semester_label }}</td>
+      <td>
+        <span class='badge
+          {% if s.status == "published" %}bg-success
+          {% elif s.status == "archived" %}bg-secondary
+          {% else %}bg-warning text-dark{% endif %}'>
+          {{ s.status|capitalize }}
+        </span>
+      </td>
+      {% if current_user.is_admin_or_above %}
+      <td>
+        <div class='d-flex gap-1'>
+          <a href='{{ url_for("schedules.edit_schedule", id=s.id) }}' class='btn btn-sm btn-warning'>
+            <i class='bi bi-pencil'></i>
+          </a>
+          {% if s.status == 'draft' %}
+          <form method='POST' action='{{ url_for("schedules.publish_schedule", id=s.id) }}' style='display:inline'>
+            <input type='hidden' name='csrf_token' value='{{ csrf_token() }}'>
+            <button type='submit' class='btn btn-sm btn-success' title='Publish'>
+              <i class='bi bi-check-lg'></i>
+            </button>
+          </form>
+          {% endif %}
+          {{ confirm_delete_btn(url_for('schedules.delete_schedule', id=s.id), 'Del') }}
+        </div>
+      </td>
+      {% endif %}
+    </tr>
+    {% else %}
+    <tr><td colspan='10' class='text-center text-muted py-4'>No schedule entries found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{{ pagination(schedules, 'schedules.list_schedules', teacher_id=tf, section_id=sf) }}
+{% endblock %}
