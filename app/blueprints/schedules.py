@@ -52,20 +52,16 @@ class ScheduleForm(FlaskForm):
 @login_required
 @role_required('super_admin','admin','manager')
 def list_schedules():
-    # NAYA: DAYS ko import karein
     from app.models.timeslot import DAYS 
     page = request.args.get('page', 1, type=int)
     
-    # 1. URL se filters get karein
     semester_val = request.args.get('semester', type=int)
     tf = request.args.get('teacher_id', type=int)
     sf = request.args.get('section_id', type=int)
     
-    # NAYA: Day aur Time alag alag get karein
     day_val = request.args.get('day', type=str)
     time_val = request.args.get('time', type=str)  
     
-    # 2. Main Query banayen
     q = ClassTimeSchedule.query
     
     if semester_val:
@@ -75,7 +71,6 @@ def list_schedules():
     if tf:
         q = q.filter(ClassTimeSchedule.teacher_id == tf)
         
-    # NAYA: Day aur Time ka filter lagayen
     if day_val or time_val:
         q = q.join(TimeSlot)
         if day_val:
@@ -87,7 +82,7 @@ def list_schedules():
             
     schedules = q.paginate(page=page, per_page=30)
     
-    # 3. SMART BACKEND FILTERING FOR DROPDOWNS
+    # SMART BACKEND FILTERING FOR DROPDOWNS
     # A. Semesters
     sem_q = db.session.query(Section.semester).distinct()
     if tf:
@@ -115,7 +110,6 @@ def list_schedules():
         tea_q = tea_q.distinct()
     teachers = tea_q.order_by(Teacher.full_name).all()
 
-    # D. NAYA: Dropdown ke liye alag alag Days aur Times
     days_list = DAYS[:6] # Mon - Sat
     
     all_slots = TimeSlot.query.order_by(TimeSlot.start_time).all()
@@ -129,9 +123,9 @@ def list_schedules():
 
     return render_template('schedules/list.html',
         schedules=schedules, teachers=teachers, sections=sections, semesters=semesters,
-        days_list=days_list, unique_times=unique_times, # NAYA
+        days_list=days_list, unique_times=unique_times, 
         tf=tf, sf=sf, semester_val=semester_val,
-        day_val=day_val, time_val=time_val) # NAYA
+        day_val=day_val, time_val=time_val) 
 
 @schedules_bp.route('/add', methods=['GET','POST'])
 @login_required
@@ -246,7 +240,6 @@ def timetable_grid():
     slots = TimeSlot.query.order_by(TimeSlot.start_time).all()
     days  = DAYS[:6]   # Mon–Sat
     
-    # Dropdown ke liye tamam unique times nikalein
     all_time_periods = []
     seen_times = set()
     for slot in slots:
@@ -259,11 +252,9 @@ def timetable_grid():
             })
             seen_times.add(time_key)
 
-    # 2. TIME FILTER APPLY KAREIN
     if time_filter:
         valid_slot_ids = [s.id for s in slots if f"{s.start_time}-{s.end_time}" == time_filter]
         q = q.filter(ClassTimeSchedule.time_slot_id.in_(valid_slot_ids))
-        # Grid mein sirf wahi row show ho jo select hui hai
         unique_time_periods = [tp for tp in all_time_periods if tp['key'] == time_filter]
     else:
         unique_time_periods = all_time_periods
@@ -311,7 +302,7 @@ def timetable_grid():
     
     return render_template('schedules/timetable.html',
         grid=grid, days=days, unique_time_periods=unique_time_periods, 
-        all_time_periods=all_time_periods, slots=slots, # NAYA: all_time_periods pass kiya hai
+        all_time_periods=all_time_periods, slots=slots, 
         sections=sections, teachers=teachers, semesters=semesters,
         sel_section=section_id, sel_teacher=teacher_id, sel_semester=semester_val,
-        sel_time=time_filter) # NAYA: selected time
+        sel_time=time_filter) 

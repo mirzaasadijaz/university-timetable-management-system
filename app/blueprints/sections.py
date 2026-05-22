@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required
 from flask_wtf import FlaskForm
-# ADDED SelectField here
 from wtforms import StringField, IntegerField, SubmitField, SelectField 
 from wtforms.validators import DataRequired, Length, NumberRange
 from app import db
@@ -14,7 +13,6 @@ class SectionForm(FlaskForm):
     name     = StringField('Section Name', validators=[DataRequired(), Length(max=50)])
     program  = StringField('Program',      validators=[DataRequired(), Length(max=80)])
     
-    # NAYA SEMESTER FIELD: Ab yeh user ko '1st Semester' dikhayega, lekin DB mein '1' save karega
     semester = SelectField('Semester', coerce=int, choices=[
         (1, '1st Semester'), (2, '2nd Semester'), (3, '3rd Semester'),
         (4, '4th Semester'), (5, '5th Semester'), (6, '6th Semester'),
@@ -42,7 +40,6 @@ def list_sections():
 def add_section():
     form = SectionForm()
     if form.validate_on_submit():
-        # CHECK: Duplicate Section rokne ke liye
         existing_section = Section.query.filter_by(
             name=form.name.data, 
             program=form.program.data, 
@@ -67,7 +64,6 @@ def edit_section(id):
     s = Section.query.get_or_404(id)
     form = SectionForm(obj=s)
     if form.validate_on_submit():
-        # CHECK: Edit karte waqt duplicate rokne ke liye
         existing_section = Section.query.filter_by(
             name=form.name.data, 
             program=form.program.data, 

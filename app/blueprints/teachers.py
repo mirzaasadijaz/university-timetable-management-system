@@ -31,7 +31,6 @@ class TeacherForm(FlaskForm):
         self.department_id.choices = [(0,'-- None --')] + [
             (d.id,d.name) for d in Department.query.order_by('name').all()]
         
-        # <-- ADDED: Populate the user dropdown
         self.user_id.choices = [(u.id, u.username) for u in User.query.order_by('username').all()]
 
 @teachers_bp.route('/')
@@ -60,7 +59,7 @@ def add_teacher():
                     designation=form.designation.data,
                     department_id=form.department_id.data or None,
                     contact=form.contact.data,
-                    user_id=form.user_id.data)  # <-- ADDED: Save the user_id
+                    user_id=form.user_id.data)  
         
         db.session.add(t); db.session.commit()
         flash(f'Teacher {t.full_name} added.','success')
@@ -77,7 +76,7 @@ def edit_teacher(id):
         t.full_name=form.full_name.data; t.employee_code=form.employee_code.data
         t.designation=form.designation.data; t.contact=form.contact.data
         t.department_id=form.department_id.data or None
-        t.user_id=form.user_id.data  # <-- ADDED: Update the user_id
+        t.user_id=form.user_id.data 
         
         db.session.commit()
         flash('Teacher updated.','success')
